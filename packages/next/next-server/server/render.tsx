@@ -40,6 +40,10 @@ import { LoadComponentsReturnType, ManifestItem } from './load-components'
 import optimizeAmp from './optimize-amp'
 import { UnwrapPromise } from '../../lib/coalesced-function'
 import { GetStaticProps, GetServerSideProps } from '../../types'
+import fs from 'fs'
+import { promisify } from 'util'
+
+const readFile = promisify(fs.readFile)
 
 function noRouter() {
   const message =
@@ -192,6 +196,7 @@ function renderDocument(
     headTags,
     gsp,
     gssp,
+    css,
     customServer,
   }: RenderOpts & {
     props: any
@@ -250,6 +255,7 @@ function renderDocument(
           staticMarkup,
           devFiles,
           files,
+          css,
           lowPriorityFiles,
           polyfillFiles,
           dynamicImports,

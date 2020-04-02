@@ -16,8 +16,33 @@ import {
   GetStaticProps,
 } from 'next/types'
 
+import { promisify } from 'util'
+
+import fs from 'fs'
+
+const readFile = promisify(fs.readFile)
+
 export function interopDefault(mod: any) {
   return mod.default || mod
+}
+
+const getCssFromManifest = async (manifest, distDir) => {
+  const pageCssFiles = Object.keys(manifest.pages).reduce((acc, pagePath) => {
+    const pageFiles = manifest.pages[pagePath]
+    const cssFiles =
+      pageFiles && pageFiles.length
+        ? pageFiles.filter(f => /\.css$/.test(f))
+        : []
+    return [...acc, ...cssFiles]
+  }, [])
+  return await Promise.all(
+    pageCssFiles.map(f => {
+      return readFile(join(distDir, f), 'utf8').then(contents => ({
+        contents,
+        path: f,
+      }))
+    })
+  )
 }
 
 export type ManifestItem = {
@@ -100,7 +125,9 @@ export async function loadComponents(
 
   const { getServerSideProps, getStaticProps, getStaticPaths } = ComponentMod
 
+  const css = await getCssFromManifest(buildManifest, distDir)
   return {
+    css,
     App,
     Document,
     Component,

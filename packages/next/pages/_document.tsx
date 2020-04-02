@@ -289,6 +289,7 @@ export class Head extends Component<
       __NEXT_DATA__,
       dangerousAsPath,
       headTags,
+      css,
     } = this.context._documentProps
     const { _devOnlyInvalidateCacheQueryString } = this.context
     const { page, buildId } = __NEXT_DATA__
@@ -465,6 +466,9 @@ export class Head extends Component<
             </noscript>
             <script async src="https://cdn.ampproject.org/v0.js" />
           </>
+        )}
+        {inAmpMode && (
+          <style dangerouslySetInnerHTML={{ __html: css[0].contents }} />
         )}
         {!inAmpMode && (
           <>
